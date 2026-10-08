@@ -59,6 +59,7 @@
     <button class="tab active" onclick="Admin.tab('listings')">Listings</button>
     <button class="tab" onclick="Admin.tab('home')">Homepage</button>
     <button class="tab" onclick="Admin.tab('about')">About &amp; Contact</button>
+    <button class="tab" onclick="Admin.tab('theme')">Theme</button>
     <button class="tab" onclick="Admin.tab('settings')">Settings</button>
   </div>
 
@@ -108,6 +109,26 @@
     <div style="margin-top:20px"><button class="btn" onclick="Admin.saveAbout()">Save</button></div>
   </div>
 
+  <div class="panel" id="p-theme">
+    <h3 style="font-family:var(--serif);color:var(--green-deep)">Theme colors</h3>
+    <p style="font-size:14px;color:var(--muted)">Change the website's colors. The preview updates as you pick — press Save to apply.</p>
+    <div class="row">
+      <div><label>Primary (deep green)</label><input type="color" id="f-theme-green" style="height:52px;padding:6px" oninput="Admin.previewTheme()"></div>
+      <div><label>Accent (gold)</label><input type="color" id="f-theme-gold" style="height:52px;padding:6px" oninput="Admin.previewTheme()"></div>
+    </div>
+    <div class="row">
+      <div><label>Page background</label><input type="color" id="f-theme-bg" style="height:52px;padding:6px" oninput="Admin.previewTheme()"></div>
+      <div><label>Preview</label><div id="theme-preview" style="display:flex;gap:10px;align-items:center;height:52px">
+        <span id="tp-green" style="width:44px;height:44px;border-radius:10px;border:1px solid var(--line)"></span>
+        <span id="tp-gold" style="width:44px;height:44px;border-radius:10px;border:1px solid var(--line)"></span>
+        <span id="tp-bg" style="width:44px;height:44px;border-radius:10px;border:1px solid var(--line)"></span>
+        <span style="font-size:13px;color:var(--muted)">header · buttons · page</span>
+      </div></div>
+    </div>
+    <div style="margin-top:20px"><button class="btn" onclick="Admin.saveTheme()">Save theme</button>
+    <button class="btn-sm" onclick="Admin.resetTheme()" style="margin-left:8px">Reset to brand defaults</button></div>
+  </div>
+
   <div class="panel" id="p-settings">
     <h3 style="font-family:var(--serif);color:var(--green-deep)">Settings</h3>
     <label>Change back-office password</label>
@@ -117,7 +138,7 @@
     <div class="locked" style="margin-top:26px"><strong>📤 Publish your changes for all visitors:</strong><br>
     Your edits appear on this device right away. To make them live for everyone, download the content file and send it to your IEC team — we'll publish it to the website.<br>
     <div style="margin-top:12px"><button class="btn" onclick="Admin.exportJson()">Download content file</button></div></div>
-    <div class="locked"><strong>🔒 Locked — managed by IEC:</strong> logo, brand colors, fonts, page layout, and the brand guidelines page can only be changed by your IEC team. Contact us for any brand changes.</div>
+    <div class="locked"><strong>🔒 Locked — managed by IEC:</strong> logo, fonts, page layout, and the brand guidelines page can only be changed by your IEC team. Theme colors you can change anytime under the Theme tab. Contact us for any brand changes.</div>
   </div>
 </div>
 
@@ -144,6 +165,10 @@ var Admin=(function(){
     document.getElementById('f-about').value=data.about_text;
     document.getElementById('f-phone').value=data.phone;
     document.getElementById('f-email').value=data.email;
+    document.getElementById('f-theme-green').value=data.theme_green;
+    document.getElementById('f-theme-gold').value=data.theme_gold;
+    document.getElementById('f-theme-bg').value=data.theme_bg;
+    previewTheme();
     renderList();
   }
   function tab(name){
@@ -205,6 +230,31 @@ var Admin=(function(){
     data.email=document.getElementById('f-email').value.trim();
     HFE.save(data);alert("Saved.");
   }
+  function previewTheme(){
+    var g=document.getElementById('f-theme-green').value,
+        o=document.getElementById('f-theme-gold').value,
+        b=document.getElementById('f-theme-bg').value;
+    document.getElementById('tp-green').style.background=g;
+    document.getElementById('tp-gold').style.background=o;
+    document.getElementById('tp-bg').style.background=b;
+    HFE.applyTheme({theme_green:g,theme_gold:o,theme_bg:b});
+  }
+  function saveTheme(){
+    data.theme_green=document.getElementById('f-theme-green').value;
+    data.theme_gold=document.getElementById('f-theme-gold').value;
+    data.theme_bg=document.getElementById('f-theme-bg').value;
+    HFE.save(data);previewTheme();
+    alert("Theme saved — view the site to see it live.");
+  }
+  function resetTheme(){
+    if(confirm("Reset colors to the original brand defaults?")){
+      data.theme_green=HFE.DEFAULTS.theme_green;
+      data.theme_gold=HFE.DEFAULTS.theme_gold;
+      data.theme_bg=HFE.DEFAULTS.theme_bg;
+      HFE.save(data);boot();
+      alert("Theme reset to brand defaults.");
+    }
+  }
   function changePw(){
     var v=document.getElementById('f-newpw').value;
     if(v.length<6){alert("Password must be at least 6 characters.");return;}
@@ -225,7 +275,8 @@ var Admin=(function(){
     alert("content.json downloaded. Send it to your IEC team to publish your changes for all visitors.");
   }
   return {login:login,tab:tab,editListing:editListing,saveListing:saveListing,
-    delListing:delListing,saveHome:saveHome,saveAbout:saveAbout,
+    delListing:delListing,saveHome:saveHome,saveAbout:saveAbout,previewTheme:previewTheme,
+    saveTheme:saveTheme,resetTheme:resetTheme,
     changePw:changePw,resetAll:resetAll,exportJson:exportJson,DEF_PW:DEF_PW};
 })();
 </script>
