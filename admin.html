@@ -81,6 +81,17 @@
       </div>
       <div class="row">
         <div><label>Square feet</label><input id="f-sqft" placeholder="1,050"></div>
+        <div><label>Status (optional)</label><input id="f-status" placeholder="For Sale"></div>
+      </div>
+      <div class="row">
+        <div><label>MLS # (optional)</label><input id="f-mls" placeholder="73518697"></div>
+        <div><label>Lot (optional)</label><input id="f-lot" placeholder="0.4-acre lot"></div>
+      </div>
+      <div class="row">
+        <div><label>Year built (optional)</label><input id="f-year" placeholder="Built 1913"></div>
+        <div><label>Listing agent line (optional)</label><input id="f-agent" placeholder="Listed by ..."></div>
+      </div>
+      <div class="row">
         <div><label>&nbsp;</label><label style="font-weight:400"><input type="checkbox" id="f-sample" style="width:auto"> Mark as sample listing</label></div>
       </div>
       <label>Description</label><textarea id="f-desc" placeholder="Sun-filled corner condo steps to Central Square."></textarea>
@@ -197,20 +208,26 @@ var Admin=(function(){
     var el=document.getElementById('listing-list');
     el.innerHTML=data.listings.map(function(l,i){
       return '<div class="listing-row"><div class="info"><strong>'+HFE.esc(l.price)+'</strong><br>'+HFE.esc(l.addr)+
-        (l.sample?' <span class="tag">Sample</span>':'')+'</div>'+
+        (l.sample?' <span class="tag">Sample</span>':'')+(l.status&&!l.sample?' <span class="tag green">'+HFE.esc(l.status)+'</span>':'')+'</div>'+
         '<div><button class="btn-sm" onclick="Admin.editListing('+i+')">Edit</button>'+
         '<button class="btn-sm danger" onclick="Admin.delListing('+i+')">Delete</button></div></div>';
     }).join("")||'<p style="color:var(--muted)">No listings yet.</p>';
   }
   function editListing(i){
     editIdx=i;
-    var l=i>=0?data.listings[i]:{price:"",addr:"",beds:"",baths:"",sqft:"",desc:"",sample:false};
+    var l=i>=0?data.listings[i]:{price:"",addr:"",beds:"",baths:"",sqft:"",desc:"",status:"",mls:"",lot:"",year:"",agent:"",sample:false};
     document.getElementById('ed-title').textContent=i>=0?"Edit listing":"Add listing";
     document.getElementById('f-price').value=l.price||"";
     document.getElementById('f-addr').value=l.addr||"";
     document.getElementById('f-beds').value=l.beds||"";
     document.getElementById('f-baths').value=l.baths||"";
     document.getElementById('f-sqft').value=l.sqft||"";
+    document.getElementById('f-status').value=l.status||"";
+    document.getElementById('f-mls').value=l.mls||"";
+    document.getElementById('f-lot').value=l.lot||"";
+    document.getElementById('f-year').value=l.year||"";
+    document.getElementById('f-agent').value=l.agent||"";
+    document.getElementById('f-desc').value=l.desc||"";
     document.getElementById('f-desc').value=l.desc||"";
     document.getElementById('f-sample').checked=!!l.sample;
     document.getElementById('editor').style.display='block';
@@ -223,6 +240,11 @@ var Admin=(function(){
       baths:document.getElementById('f-baths').value.trim(),
       sqft:document.getElementById('f-sqft').value.trim(),
       desc:document.getElementById('f-desc').value.trim(),
+      status:document.getElementById('f-status').value.trim(),
+      mls:document.getElementById('f-mls').value.trim(),
+      lot:document.getElementById('f-lot').value.trim(),
+      year:document.getElementById('f-year').value.trim(),
+      agent:document.getElementById('f-agent').value.trim(),
       sample:document.getElementById('f-sample').checked};
     if(!l.price||!l.addr){alert("Price and address are required.");return;}
     if(editIdx>=0)data.listings[editIdx]=l;else data.listings.push(l);
