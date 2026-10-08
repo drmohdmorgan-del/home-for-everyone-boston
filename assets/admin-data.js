@@ -75,24 +75,30 @@ function apply(){
     else { el.textContent=d[k]; }
   });
   var grid=document.getElementById("listing-grid");
+  function cardHtml(l){
+    var tags=(l.sample?'<span class="tag">Sample listing</span>':'')+(l.status&&!l.sample?'<span class="tag green">'+esc(l.status)+'</span>':'');
+    var specs=[l.mls?("MLS #"+l.mls):null,l.lot||null,l.year||null].filter(Boolean).join(" · ");
+    return '<div class="listing"><div class="ph">'+(l.sample?"SAMPLE PHOTO":"LISTING PHOTO")+'</div>'+
+    '<div class="body">'+tags+
+    '<div class="price">'+esc(l.price)+'</div>'+
+    '<div class="addr">'+esc(l.addr)+'</div>'+
+    '<div class="facts"><span>'+esc(l.beds)+' bd</span><span>'+esc(l.baths)+' ba</span><span>'+esc(l.sqft)+' sqft</span></div>'+
+    '<p style="font-size:14px;color:var(--muted)">'+esc(l.desc)+'</p>'+
+    (specs?'<p style="font-size:12.5px;color:var(--muted);margin-top:8px">'+esc(specs)+'</p>':'')+
+    (l.agent&&!l.sample?'<p style="font-size:12.5px;color:var(--muted);margin-top:4px;font-style:italic">'+esc(l.agent)+'</p>':'')+
+    '</div></div>';
+  }
   if(grid){
     if(!d.listings.length){
       grid.innerHTML='<p style="color:var(--muted)">No listings yet — check back soon, or <a href="contact.html">contact us</a> for off-market opportunities.</p>';
     }else{
-      grid.innerHTML=d.listings.map(function(l){
-        var tags=(l.sample?'<span class="tag">Sample listing</span>':'')+(l.status&&!l.sample?'<span class="tag green">'+esc(l.status)+'</span>':'');
-        var specs=[l.mls?("MLS #"+l.mls):null,l.lot||null,l.year||null].filter(Boolean).join(" · ");
-        return '<div class="listing"><div class="ph">'+(l.sample?"SAMPLE PHOTO":"LISTING PHOTO")+'</div>'+
-        '<div class="body">'+tags+
-        '<div class="price">'+esc(l.price)+'</div>'+
-        '<div class="addr">'+esc(l.addr)+'</div>'+
-        '<div class="facts"><span>'+esc(l.beds)+' bd</span><span>'+esc(l.baths)+' ba</span><span>'+esc(l.sqft)+' sqft</span></div>'+
-        '<p style="font-size:14px;color:var(--muted)">'+esc(l.desc)+'</p>'+
-        (specs?'<p style="font-size:12.5px;color:var(--muted);margin-top:8px">'+esc(specs)+'</p>':'')+
-        (l.agent&&!l.sample?'<p style="font-size:12.5px;color:var(--muted);margin-top:4px;font-style:italic">'+esc(l.agent)+'</p>':'')+
-        '</div></div>';
-      }).join("");
+      grid.innerHTML=d.listings.map(cardHtml).join("");
     }
+  }
+  var feat=document.getElementById("featured-grid");
+  if(feat){
+    var real=d.listings.filter(function(l){return !l.sample;});
+    feat.innerHTML=real.length?real.map(cardHtml).join(""):'<p style="color:var(--muted)">New listings coming soon — <a href="listings.html">browse all listings</a>.</p>';
   }
 }
 document.addEventListener("DOMContentLoaded",function(){
