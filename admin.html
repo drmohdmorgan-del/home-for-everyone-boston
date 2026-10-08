@@ -41,12 +41,14 @@
   <div class="login-card">
     <div class="eyebrow">Back office</div>
     <h2>Sign in</h2>
-    <p style="font-size:14px;color:var(--muted)">Enter the back-office password to manage website content.</p>
+    <p style="font-size:14px;color:var(--muted)">Enter your back-office username and password to manage website content.</p>
     <form onsubmit="event.preventDefault();Admin.login();">
+      <label for="un" style="display:block;font-size:13px;font-weight:700;margin:18px 0 6px">Username</label>
+      <input id="un" style="width:100%;border:1px solid var(--line);border-radius:8px;padding:11px 13px" autocomplete="username">
       <label for="pw" style="display:block;font-size:13px;font-weight:700;margin:18px 0 6px">Password</label>
       <input type="password" id="pw" style="width:100%;border:1px solid var(--line);border-radius:8px;padding:11px 13px" autocomplete="current-password">
       <div style="margin-top:18px"><button class="btn" type="submit">Sign in</button></div>
-      <p id="pw-err" style="display:none;color:#a33;font-size:13px;margin-top:10px">Wrong password — try again.</p>
+      <p id="pw-err" style="display:none;color:#a33;font-size:13px;margin-top:10px">Wrong username or password — try again.</p>
     </form>
   </div>
 </div>
@@ -54,7 +56,7 @@
 <div class="admin-wrap" id="app" style="display:none">
   <div class="eyebrow">Back office</div>
   <h2>Website content</h2>
-  <p style="font-size:14px;color:var(--muted)">You can update listings, homepage text, and contact info here. Changes appear on this device immediately — use Settings → Download content file to publish them for all visitors.</p>
+  <p style="font-size:14px;color:var(--muted)"><span id="whoami"></span> · You can update listings, homepage text, and contact info here. Changes appear on this device immediately — use Settings → Download content file to publish them for all visitors.</p>
   <div class="tabs">
     <button class="tab active" onclick="Admin.tab('listings')">Listings</button>
     <button class="tab" onclick="Admin.tab('home')">Homepage</button>
@@ -131,9 +133,9 @@
 
   <div class="panel" id="p-settings">
     <h3 style="font-family:var(--serif);color:var(--green-deep)">Settings</h3>
-    <label>Change back-office password</label>
-    <input type="password" id="f-newpw" placeholder="New password">
-    <div style="margin-top:14px"><button class="btn-sm" onclick="Admin.changePw()">Update password</button></div>
+    <label>Logins with back-office access</label>
+    <div id="user-list"></div>
+    <p style="font-size:13px;color:var(--muted);margin-top:10px">Password changes save on this device. To change a login everywhere, ask IEC to update the website.</p>
     <div style="margin-top:26px"><button class="btn-sm danger" onclick="Admin.resetAll()">Reset all content to defaults</button></div>
     <div class="locked" style="margin-top:26px"><strong>📤 Publish your changes for all visitors:</strong><br>
     Your edits appear on this device right away. To make them live for everyone, download the content file and send it to your IEC team — we'll publish it to the website.<br>
@@ -145,13 +147,26 @@
 <script src="assets/admin-data.js"></script>
 <script>
 var Admin=(function(){
-  var PWKEY="hfe-admin-pw", DEF_PW="HomeForEveryone2026";
-  var data=null, editIdx=-1;
-  function pw(){ return localStorage.getItem(PWKEY)||DEF_PW; }
+  var UKEY="hfe-admin-users", OLDKEY="hfe-admin-pw";
+  var DEF_USERS=[{u:"admin",p:"HomeForEveryone2026"},{u:"salustia",p:"Salustia2026!"}];
+  var data=null, editIdx=-1, currentUser=null;
+  function getUsers(){
+    try{var u=JSON.parse(localStorage.getItem(UKEY));if(u&&u.length)return u;}catch(e){}
+    var d=JSON.parse(JSON.stringify(DEF_USERS));
+    try{var legacy=localStorage.getItem(OLDKEY);if(legacy)d[0].p=legacy;}catch(e2){}
+    return d;
+  }
+  function setUsers(u){localStorage.setItem(UKEY,JSON.stringify(u));}
   function login(){
-    if(document.getElementById('pw').value===pw()){
+    var un=document.getElementById('un').value.trim().toLowerCase();
+    var pwv=document.getElementById('pw').value;
+    var found=null;
+    getUsers().forEach(function(x){if(x.u.toLowerCase()===un&&x.p===pwv)found=x;});
+    if(found){
+      currentUser=found.u;
       document.getElementById('gate').style.display='none';
       document.getElementById('app').style.display='block';
+      document.getElementById('whoami').textContent='Signed in as '+found.u;
       boot();
     }else{
       document.getElementById('pw-err').style.display='block';
@@ -170,6 +185,7 @@ var Admin=(function(){
     document.getElementById('f-theme-bg').value=data.theme_bg;
     previewTheme();
     renderList();
+    renderUsers();
   }
   function tab(name){
     document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});
@@ -255,11 +271,22 @@ var Admin=(function(){
       alert("Theme reset to brand defaults.");
     }
   }
-  function changePw(){
-    var v=document.getElementById('f-newpw').value;
+  function renderUsers(){
+    var users=getUsers(), html="";
+    users.forEach(function(x,i){
+      html+='<div style="display:flex;gap:10px;align-items:center;margin-bottom:10px;flex-wrap:wrap">'
+        +'<strong style="min-width:90px">'+HFE.esc(x.u)+'</strong>'
+        +'<input type="password" id="upw-'+i+'" placeholder="New password" style="flex:1;min-width:160px">'
+        +'<button class="btn-sm" onclick="Admin.setUserPw('+i+')">Set password</button></div>';
+    });
+    document.getElementById('user-list').innerHTML=html;
+  }
+  function setUserPw(i){
+    var v=document.getElementById('upw-'+i).value;
     if(v.length<6){alert("Password must be at least 6 characters.");return;}
-    localStorage.setItem(PWKEY,v);document.getElementById('f-newpw').value="";
-    alert("Password updated.");
+    var users=getUsers();users[i].p=v;setUsers(users);
+    document.getElementById('upw-'+i).value="";
+    alert("Password updated for "+users[i].u+".");
   }
   function resetAll(){
     if(confirm("Reset ALL website content to the original defaults? This cannot be undone.")){
@@ -276,8 +303,8 @@ var Admin=(function(){
   }
   return {login:login,tab:tab,editListing:editListing,saveListing:saveListing,
     delListing:delListing,saveHome:saveHome,saveAbout:saveAbout,previewTheme:previewTheme,
-    saveTheme:saveTheme,resetTheme:resetTheme,
-    changePw:changePw,resetAll:resetAll,exportJson:exportJson,DEF_PW:DEF_PW};
+    saveTheme:saveTheme,resetTheme:resetTheme,setUserPw:setUserPw,
+    resetAll:resetAll,exportJson:exportJson};
 })();
 </script>
 </body>
