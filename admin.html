@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Back Office | Home for Everyone — Boston</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="icon" href="assets/logo.webp">
+<style>
+  .admin-wrap{max-width:960px;margin:0 auto;padding:40px 24px 80px}
+  .login-card{max-width:420px;margin:80px auto;background:#fff;border:1px solid var(--line);border-radius:14px;padding:36px}
+  .tabs{display:flex;gap:8px;flex-wrap:wrap;margin:26px 0}
+  .tab{background:#fff;border:1px solid var(--line);border-radius:8px;padding:10px 20px;cursor:pointer;font-weight:600;font-size:14px;color:var(--green-deep)}
+  .tab.active{background:var(--green);color:#fff;border-color:var(--green)}
+  .panel{display:none;background:#fff;border:1px solid var(--line);border-radius:14px;padding:30px}
+  .panel.active{display:block}
+  .panel label{display:block;font-size:13px;font-weight:700;margin:18px 0 6px;color:var(--green-deep)}
+  .panel input,.panel textarea,.panel select{width:100%;border:1px solid var(--line);border-radius:8px;padding:11px 13px;font-size:14.5px;font-family:var(--sans)}
+  .panel textarea{min-height:90px}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .listing-row{display:flex;align-items:center;justify-content:space-between;border:1px solid var(--line);border-radius:10px;padding:14px 18px;margin-bottom:12px}
+  .listing-row .info{font-size:14px}
+  .listing-row .info strong{font-family:var(--serif);font-size:17px;color:var(--green-deep)}
+  .btn-sm{background:#fff;border:1px solid var(--line);border-radius:7px;padding:8px 16px;cursor:pointer;font-size:13px;font-weight:600;margin-left:8px}
+  .btn-sm.danger{color:#a33;border-color:#e3b8b8}
+  .btn-sm:hover{background:var(--ivory)}
+  .locked{background:#f6f1e3;border:1px solid #e0d3ac;border-radius:10px;padding:16px 20px;font-size:13.5px;color:#6b5a2e;margin-top:22px}
+  #editor{display:none;border-top:2px solid var(--gold);margin-top:24px;padding-top:20px}
+</style>
+</head>
+<body>
+<header class="site-header">
+  <div class="header-inner">
+    <a class="brand" href="index.html"><img src="assets/logo.webp" alt="Home for Everyone — Boston"><span class="word">HOME FOR EVERYONE<small>BOSTON · BACK OFFICE</small></span></a>
+    <nav class="main"><a href="index.html">← View website</a></nav>
+  </div>
+</header>
+
+<div class="admin-wrap" id="gate">
+  <div class="login-card">
+    <div class="eyebrow">Back office</div>
+    <h2>Sign in</h2>
+    <p style="font-size:14px;color:var(--muted)">Enter the back-office password to manage website content.</p>
+    <form onsubmit="event.preventDefault();Admin.login();">
+      <label for="pw" style="display:block;font-size:13px;font-weight:700;margin:18px 0 6px">Password</label>
+      <input type="password" id="pw" style="width:100%;border:1px solid var(--line);border-radius:8px;padding:11px 13px" autocomplete="current-password">
+      <div style="margin-top:18px"><button class="btn" type="submit">Sign in</button></div>
+      <p id="pw-err" style="display:none;color:#a33;font-size:13px;margin-top:10px">Wrong password — try again.</p>
+    </form>
+  </div>
+</div>
+
+<div class="admin-wrap" id="app" style="display:none">
+  <div class="eyebrow">Back office</div>
+  <h2>Website content</h2>
+  <p style="font-size:14px;color:var(--muted)">You can update listings, homepage text, and contact info here. Changes appear on this device immediately — use Settings → Download content file to publish them for all visitors.</p>
+  <div class="tabs">
+    <button class="tab active" onclick="Admin.tab('listings')">Listings</button>
+    <button class="tab" onclick="Admin.tab('home')">Homepage</button>
+    <button class="tab" onclick="Admin.tab('about')">About &amp; Contact</button>
+    <button class="tab" onclick="Admin.tab('settings')">Settings</button>
+  </div>
+
+  <div class="panel active" id="p-listings">
+    <h3 style="font-family:var(--serif);color:var(--green-deep)">Listings</h3>
+    <div id="listing-list" style="margin:18px 0"></div>
+    <button class="btn" onclick="Admin.editListing(-1)">+ Add listing</button>
+    <div id="editor">
+      <h4 style="font-family:var(--serif);color:var(--green-deep)" id="ed-title">Add listing</h4>
+      <div class="row">
+        <div><label>Price</label><input id="f-price" placeholder="$689,000"></div>
+        <div><label>Address</label><input id="f-addr" placeholder="123 Main St, Boston, MA 02128"></div>
+      </div>
+      <div class="row">
+        <div><label>Bedrooms</label><input id="f-beds" placeholder="2"></div>
+        <div><label>Bathrooms</label><input id="f-baths" placeholder="2"></div>
+      </div>
+      <div class="row">
+        <div><label>Square feet</label><input id="f-sqft" placeholder="1,050"></div>
+        <div><label>&nbsp;</label><label style="font-weight:400"><input type="checkbox" id="f-sample" style="width:auto"> Mark as sample listing</label></div>
+      </div>
+      <label>Description</label><textarea id="f-desc" placeholder="Sun-filled corner condo steps to Central Square."></textarea>
+      <div style="margin-top:18px"><button class="btn" onclick="Admin.saveListing()">Save listing</button>
+      <button class="btn-sm" onclick="document.getElementById('editor').style.display='none'">Cancel</button></div>
+    </div>
+  </div>
+
+  <div class="panel" id="p-home">
+    <h3 style="font-family:var(--serif);color:var(--green-deep)">Homepage</h3>
+    <label>Hero headline (you can use &lt;em&gt; for gold emphasis)</label>
+    <textarea id="f-hero-title" rows="3"></textarea>
+    <label>Hero intro text</label>
+    <textarea id="f-hero-lede" rows="4"></textarea>
+    <label>Gold announcement bar</label>
+    <input id="f-notice">
+    <div style="margin-top:20px"><button class="btn" onclick="Admin.saveHome()">Save homepage</button></div>
+  </div>
+
+  <div class="panel" id="p-about">
+    <h3 style="font-family:var(--serif);color:var(--green-deep)">About &amp; contact</h3>
+    <label>About paragraph</label>
+    <textarea id="f-about" rows="5"></textarea>
+    <div class="row">
+      <div><label>Phone</label><input id="f-phone" placeholder="(617) 555-0123"></div>
+      <div><label>Email</label><input id="f-email" placeholder="hello@homeforallrealty.com"></div>
+    </div>
+    <div style="margin-top:20px"><button class="btn" onclick="Admin.saveAbout()">Save</button></div>
+  </div>
+
+  <div class="panel" id="p-settings">
+    <h3 style="font-family:var(--serif);color:var(--green-deep)">Settings</h3>
+    <label>Change back-office password</label>
+    <input type="password" id="f-newpw" placeholder="New password">
+    <div style="margin-top:14px"><button class="btn-sm" onclick="Admin.changePw()">Update password</button></div>
+    <div style="margin-top:26px"><button class="btn-sm danger" onclick="Admin.resetAll()">Reset all content to defaults</button></div>
+    <div class="locked" style="margin-top:26px"><strong>📤 Publish your changes for all visitors:</strong><br>
+    Your edits appear on this device right away. To make them live for everyone, download the content file and send it to your IEC team — we'll publish it to the website.<br>
+    <div style="margin-top:12px"><button class="btn" onclick="Admin.exportJson()">Download content file</button></div></div>
+    <div class="locked"><strong>🔒 Locked — managed by IEC:</strong> logo, brand colors, fonts, page layout, and the brand guidelines page can only be changed by your IEC team. Contact us for any brand changes.</div>
+  </div>
+</div>
+
+<script src="assets/admin-data.js"></script>
+<script>
+var Admin=(function(){
+  var PWKEY="hfe-admin-pw", DEF_PW="HomeForEveryone2026";
+  var data=null, editIdx=-1;
+  function pw(){ return localStorage.getItem(PWKEY)||DEF_PW; }
+  function login(){
+    if(document.getElementById('pw').value===pw()){
+      document.getElementById('gate').style.display='none';
+      document.getElementById('app').style.display='block';
+      boot();
+    }else{
+      document.getElementById('pw-err').style.display='block';
+    }
+  }
+  function boot(){
+    data=HFE.load();
+    document.getElementById('f-hero-title').value=data.hero_title.replace(/<br>/g,"\n").replace(/<\/?em>/g,"");
+    document.getElementById('f-hero-lede').value=data.hero_lede;
+    document.getElementById('f-notice').value=data.notice;
+    document.getElementById('f-about').value=data.about_text;
+    document.getElementById('f-phone').value=data.phone;
+    document.getElementById('f-email').value=data.email;
+    renderList();
+  }
+  function tab(name){
+    document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});
+    document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('active');});
+    event.target.classList.add('active');
+    document.getElementById('p-'+name).classList.add('active');
+  }
+  function renderList(){
+    var el=document.getElementById('listing-list');
+    el.innerHTML=data.listings.map(function(l,i){
+      return '<div class="listing-row"><div class="info"><strong>'+HFE.esc(l.price)+'</strong><br>'+HFE.esc(l.addr)+
+        (l.sample?' <span class="tag">Sample</span>':'')+'</div>'+
+        '<div><button class="btn-sm" onclick="Admin.editListing('+i+')">Edit</button>'+
+        '<button class="btn-sm danger" onclick="Admin.delListing('+i+')">Delete</button></div></div>';
+    }).join("")||'<p style="color:var(--muted)">No listings yet.</p>';
+  }
+  function editListing(i){
+    editIdx=i;
+    var l=i>=0?data.listings[i]:{price:"",addr:"",beds:"",baths:"",sqft:"",desc:"",sample:false};
+    document.getElementById('ed-title').textContent=i>=0?"Edit listing":"Add listing";
+    document.getElementById('f-price').value=l.price||"";
+    document.getElementById('f-addr').value=l.addr||"";
+    document.getElementById('f-beds').value=l.beds||"";
+    document.getElementById('f-baths').value=l.baths||"";
+    document.getElementById('f-sqft').value=l.sqft||"";
+    document.getElementById('f-desc').value=l.desc||"";
+    document.getElementById('f-sample').checked=!!l.sample;
+    document.getElementById('editor').style.display='block';
+    document.getElementById('editor').scrollIntoView({behavior:'smooth'});
+  }
+  function saveListing(){
+    var l={price:document.getElementById('f-price').value.trim(),
+      addr:document.getElementById('f-addr').value.trim(),
+      beds:document.getElementById('f-beds').value.trim(),
+      baths:document.getElementById('f-baths').value.trim(),
+      sqft:document.getElementById('f-sqft').value.trim(),
+      desc:document.getElementById('f-desc').value.trim(),
+      sample:document.getElementById('f-sample').checked};
+    if(!l.price||!l.addr){alert("Price and address are required.");return;}
+    if(editIdx>=0)data.listings[editIdx]=l;else data.listings.push(l);
+    HFE.save(data);renderList();
+    document.getElementById('editor').style.display='none';
+  }
+  function delListing(i){
+    if(confirm("Delete this listing?")){
+      data.listings.splice(i,1);HFE.save(data);renderList();
+    }
+  }
+  function saveHome(){
+    var t=document.getElementById('f-hero-title').value.trim().replace(/\n/g,"<br>");
+    data.hero_title=t;data.hero_lede=document.getElementById('f-hero-lede').value.trim();
+    data.notice=document.getElementById('f-notice').value.trim();
+    HFE.save(data);alert("Homepage saved — view the site to see it live.");
+  }
+  function saveAbout(){
+    data.about_text=document.getElementById('f-about').value.trim();
+    data.phone=document.getElementById('f-phone').value.trim();
+    data.email=document.getElementById('f-email').value.trim();
+    HFE.save(data);alert("Saved.");
+  }
+  function changePw(){
+    var v=document.getElementById('f-newpw').value;
+    if(v.length<6){alert("Password must be at least 6 characters.");return;}
+    localStorage.setItem(PWKEY,v);document.getElementById('f-newpw').value="";
+    alert("Password updated.");
+  }
+  function resetAll(){
+    if(confirm("Reset ALL website content to the original defaults? This cannot be undone.")){
+      localStorage.removeItem(HFE.KEY);data=HFE.load();boot();
+      alert("Content reset to defaults.");
+    }
+  }
+  function exportJson(){
+    var blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+    var a=document.createElement("a");
+    a.href=URL.createObjectURL(blob);a.download="content.json";
+    document.body.appendChild(a);a.click();document.body.removeChild(a);
+    alert("content.json downloaded. Send it to your IEC team to publish your changes for all visitors.");
+  }
+  return {login:login,tab:tab,editListing:editListing,saveListing:saveListing,
+    delListing:delListing,saveHome:saveHome,saveAbout:saveAbout,
+    changePw:changePw,resetAll:resetAll,exportJson:exportJson,DEF_PW:DEF_PW};
+})();
+</script>
+</body>
+</html>
