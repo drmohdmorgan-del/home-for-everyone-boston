@@ -14,7 +14,7 @@ a{color:var(--green)}
 .site-header{background:var(--green-deep);position:sticky;top:0;z-index:50}
 .header-inner{display:flex;align-items:center;justify-content:space-between;padding:14px 24px;max-width:1140px;margin:0 auto}
 .brand{display:flex;align-items:center;gap:14px;text-decoration:none}
-.brand img{height:52px;width:auto;background:#fff;border-radius:10px;padding:4px 10px}
+.brand img{height:70px;width:auto;background:#fff;border-radius:10px;padding:4px 10px}
 .brand .word{color:#fff;font-family:var(--serif);font-size:15px;letter-spacing:3px}
 .brand .word small{display:block;font-family:var(--sans);font-size:9px;letter-spacing:5px;color:var(--gold-soft)}
 nav.main{display:flex;gap:6px}
@@ -28,7 +28,7 @@ nav.main a:hover,nav.main a.active{background:rgba(198,161,91,.16);color:var(--g
 .hero .kicker{color:var(--gold-soft);letter-spacing:4px;font-size:12px;text-transform:uppercase}
 .hero p.lede{color:#d9d2c0;font-size:18px;max-width:620px;margin-bottom:28px}
 .hero-badge{display:inline-flex;align-items:center;gap:18px;background:rgba(255,255,255,.06);border:1px solid rgba(198,161,91,.4);border-radius:14px;padding:14px 22px;margin-bottom:8px}
-.hero-badge img{height:74px;background:#fff;border-radius:10px;padding:5px 12px}
+.hero-badge img{height:88px;background:#fff;border-radius:10px;padding:5px 12px}
 .btn{display:inline-block;background:var(--gold);color:#1c1a12;text-decoration:none;font-weight:700;letter-spacing:1px;padding:14px 30px;border-radius:8px;font-size:14px;text-transform:uppercase;border:none;cursor:pointer}
 .btn:hover{background:var(--gold-soft)}
 .btn.ghost{background:transparent;color:var(--gold-soft);border:1px solid var(--gold)}
@@ -88,7 +88,7 @@ footer{background:var(--green-deep);color:#cfc8b4;padding:56px 0 28px;margin-top
 .foot-grid h4{color:var(--gold-soft);letter-spacing:2px;font-size:12px;text-transform:uppercase;margin-bottom:14px}
 .foot-grid a{color:#cfc8b4;text-decoration:none;display:block;padding:5px 0;font-size:14px}
 .foot-grid a:hover{color:#fff}
-.foot-brand img{height:60px;background:#fff;border-radius:10px;padding:5px 12px;margin-bottom:14px}
+.foot-brand img{height:78px;background:#fff;border-radius:10px;padding:5px 12px;margin-bottom:14px}
 .foot-brand p{font-size:13.5px;max-width:340px}
 .foot-bottom{max-width:1140px;margin:36px auto 0;padding:18px 24px 0;border-top:1px solid rgba(198,161,91,.25);font-size:12.5px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
 /* Banner strip */
@@ -96,6 +96,7 @@ footer{background:var(--green-deep);color:#cfc8b4;padding:56px 0 28px;margin-top
 .strip strong{letter-spacing:2px}
 /* Responsive */
 @media(max-width:860px){
+  .brand img{height:56px}
   .split{grid-template-columns:1fr}
   .do-dont{grid-template-columns:1fr}
   nav.main{display:none;position:absolute;top:100%;left:0;right:0;background:var(--green-deep);flex-direction:column;padding:10px 24px 18px}
