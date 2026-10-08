@@ -11,6 +11,9 @@ var DEFAULTS={
   email:"",
   hero_title:"A home for everyone.<br><em>Right here in Boston.</em>",
   hero_lede:"Buy, sell, and invest with a boutique brokerage that treats your move like its own. Modern marketing, honest guidance, and relentless follow-through — from first tour to final signature.",
+  theme_green:"#0c3b2e",
+  theme_gold:"#c6a15b",
+  theme_bg:"#faf7f0",
   about_text:"HOME FOR ALL REALTY LLC is a Boston brokerage founded on the idea that great real estate service shouldn't depend on the size of the deal. First-time buyer or seasoned investor — you get the same launch-grade marketing and the same relentless advocacy.",
   listings:[
     {price:"$689,000",addr:"Sample St, East Boston, MA 02128",beds:"2",baths:"2",sqft:"1,050",desc:"Sun-filled corner condo steps to Central Square.",sample:true},
@@ -35,8 +38,29 @@ function esc(s){
     return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
   });
 }
+/* lighten (amt>0) or darken (amt<0) a hex color by percent */
+function shade(hex,amt){
+  var n=String(hex||"").replace("#","");
+  if(n.length===3)n=n.split("").map(function(c){return c+c;}).join("");
+  if(!/^[0-9a-fA-F]{6}$/.test(n))return hex;
+  var num=parseInt(n,16),r=(num>>16)&255,g=(num>>8)&255,b=num&255;
+  if(amt>=0){r=Math.round(r+(255-r)*amt/100);g=Math.round(g+(255-g)*amt/100);b=Math.round(b+(255-b)*amt/100);}
+  else{r=Math.round(r*(1+amt/100));g=Math.round(g*(1+amt/100));b=Math.round(b*(1+amt/100));}
+  return "#"+((1<<24)+(r<<16)+(g<<8)+b).toString(16).slice(1);
+}
+function applyTheme(d){
+  var root=document.documentElement.style;
+  var green=d.theme_green||"#0c3b2e",gold=d.theme_gold||"#c6a15b",bg=d.theme_bg||"#faf7f0";
+  root.setProperty("--green",green);
+  root.setProperty("--green-deep",shade(green,-28));
+  root.setProperty("--gold",gold);
+  root.setProperty("--gold-soft",shade(gold,28));
+  root.setProperty("--ivory",bg);
+  root.setProperty("--line",shade(gold,62));
+}
 function apply(){
   var d=load();
+  applyTheme(d);
   document.querySelectorAll("[data-hfe]").forEach(function(el){
     var k=el.getAttribute("data-hfe");
     if(!(k in d))return;
@@ -70,5 +94,5 @@ document.addEventListener("DOMContentLoaded",function(){
     .then(function(j){ if(j){ published=j; apply(); } })
     .catch(function(){});
 });
-window.HFE={load:load,save:save,esc:esc,KEY:KEY,DEFAULTS:DEFAULTS};
+window.HFE={load:load,save:save,esc:esc,shade:shade,applyTheme:applyTheme,KEY:KEY,DEFAULTS:DEFAULTS};
 })();
